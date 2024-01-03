@@ -20,8 +20,6 @@ client.on(Events.MESSAGE_CREATE, async (message) => {
 	if (!message.guild) return;
 	if (!client.application?.owner) await client.application?.fetch();
 
-	// console.log(message)
-
 	if (message.author.id === client.application?.owner?.id) {
 		await deploy(message.guild);
 		await message.reply('Deployed!');

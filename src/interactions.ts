@@ -19,7 +19,7 @@ async function join(
 ) {
 	await interaction.deferReply();
 
-	createButton(interaction)
+	// createButton(interaction)
 
 	if (!connection) {
 		if (interaction.member instanceof GuildMember && interaction.member.voice.channel) {
@@ -39,7 +39,10 @@ async function join(
 	}
 
 	try {
-		await entersState(connection, VoiceConnectionStatus.Ready, 60e3);
+		console.log('start connection')
+		await entersState(connection, VoiceConnectionStatus.Ready, 20e3);
+
+		console.log('connection success')
 		const receiver = connection.receiver;
 
 		receiver.speaking.on('start', (userId) => {
@@ -49,7 +52,7 @@ async function join(
 		});
 	} catch (error) {
 		console.warn(error);
-		await interaction.followUp('Failed to join voice channel within 60 seconds, please try again later!');
+		await interaction.followUp('Failed to join voice channel within 20 seconds, please try again later!');
 	}
 
 	await interaction.followUp('Ready!');
@@ -63,10 +66,17 @@ async function record(
 ) {
 	if (connection) {
 		const userId = interaction.options.get('speaker')!.value! as Snowflake;
+		
+		console.log(userId)
 		recordable.add(userId);
 
 		const receiver = connection.receiver;
+		console.log(connection.receiver)
+
+		createListeningStream(receiver, userId, client.users.cache.get(userId));
+
 		if (connection.receiver.speaking.users.has(userId)) {
+			console.log('connection.receiver.speaking.users.has(userId)')
 			createListeningStream(receiver, userId, client.users.cache.get(userId));
 		}
 		
@@ -74,6 +84,8 @@ async function record(
 	} else {
 		await interaction.reply({ ephemeral: true, content: 'Join a voice channel and then try that again!' });
 	}
+
+	createButton(interaction)
 }
 
 async function leave(
